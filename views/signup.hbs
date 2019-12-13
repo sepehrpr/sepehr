@@ -1,0 +1,66 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<center>
+<body>
+    <br>
+    username: <input type="text" id="uname" placeholder="unic ID"><br>
+personalCode: <input type="text" id="personalCode" placeholder="personalCode"><br>
+firstName: <input type="text" id="firstName" placeholder="firstName"><br>
+familyName: <input type="text" id="familyName"placeholder="familyName"><br>
+phoneNumber : <input type="number" id="phoneNumber" placeholder="phoneNumber"><br>
+Email: <input type="email" id="Email" placeholder="Email"><br>
+brithDay: <input type="date" id="brithDay" placeholder="brithDay"><br>
+Password: <input type="password" id="Password" placeholder="Password"><br>
+<button type="submit" id = "btnRegister" onclick="Register()" value="Submit">Register</button>
+
+ <script type="text/javascript" src="signup.js"></script>
+
+ <script>
+     
+     function InsertUser( username , personalCode , firstName , familyName, phoneNumber )
+{
+
+    const mysql=require('mysql')
+//const app= express();
+
+
+
+let connection = mysql.createConnection({
+	host     : 'localhost',
+	user     : 'root',
+	password : '',
+	database : 'nodedb'
+});
+connection.connect(function(err) {
+	if (err) throw err;
+	console.log("Connected!");
+	var sql = "INSERT INTO users (userName, perssonalCode, Name, familyName, phoneNumber, Email, brithDay, Password) VALUES ";
+	sql += "(" + username +"," + personalCode +"," + firstName +"," + familyName +"," + phoneNumber +"," +'John@some.com'+"," + '12/01/98' +"," + 'hhhh' +")";
+	//sql += "('John', 51546456,'John','Johnathan', 989765412365,'John@some.com', '12/01/98', 'hhhh')";
+connection.query(sql, function (err, result) {
+  if (err) throw err;
+  console.log("Number of records inserted: " + result.affectedRows);
+});
+})
+}
+
+function Register()
+{
+    var username = document.getElementById('uname').value;
+    var personalCode = document.getElementById('personalCode').value;
+    var firstName = document.getElementById('firstName').value;
+    var familyName = document.getElementById('familyName').value;
+    var phoneNumber = document.getElementById('phoneNumber').value;
+    InsertUser( username , personalCode , firstName , familyName, phoneNumber );
+
+    alert(username + familyName);
+}
+</script>
+
+</body>
+</html>

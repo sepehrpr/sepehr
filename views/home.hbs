@@ -1,0 +1,61 @@
+<html lang="en">
+<head>
+    <style>
+
+      
+    .center {
+  line-height: 80px;
+  height: 40px;
+  background-color: brown;
+  text-align: center;
+}
+
+.center p {
+  line-height: 1.5;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+a:link, a:visited {
+  background-color: #270f0d;
+  color: white;
+  padding: 15px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+}
+
+a:hover, a:active {
+  background-color: rgb(48, 20, 20);
+}
+
+
+    </style>
+    <title>{{title}}</title>
+</head>
+<body class="center">
+
+<form action="/auth" method="post" >
+
+<br>
+username: <input type="text" name="uname"><br>
+password: <input type="password" name="upass"><br>
+<input type="submit" value="login">
+</form>
+
+
+</body>
+
+<input type="button" value="signup">
+
+
+ 
+         
+ 
+<a href="./signup" target="_blank">assssss</a> 
+<a href="./about" target="_blank">about me</a>
+
+
+    {{>footer}}
+
+</html>
