@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const express = require('express');
 const app=express();
 var session = require('express-session');
-
+const bcrypt=require('bcryptjs')
 
 
 let connection = mysql.createConnection({
@@ -13,22 +13,10 @@ let connection = mysql.createConnection({
 	database : 'nodedb'
 });
 console.log("start")
-//InsertUser("Akbar3",12,"Akbar","Pour","913","jh@gmail.com","12/5/1","123");
 
 
-//app.get('/signup', function(req, res) {
-    //res.redirect('signup');});
- //user='sepehr'
-/* export reg fucntion to use outside of this files 
-sample:
-// mymodule.js
-exports.hello = function() {
-  return "Hello";
-}
-const myModule = require('./mymodule');
-let val = myModule.hello(); // val is "Hello"
 
-*/
+
 exports.register= function ( username , personalCode , firstName , familyName, phoneNumber,Email,brithDay,Password )
 {
 connection.connect(function(err) {
