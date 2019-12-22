@@ -1,89 +1,185 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>signup</title>
-    
+
 </head>
 <style>
-   
-   #rcorners1 {
-  border-radius: 25px;
-  border: 2px solid rgb(173, 33, 45);
-  padding: 20px; 
-  width: 200px;
-  height: 150px;  
-}
-
-#rcorners3 {
-  border-radius: 25px;
-  background: url(paper.gif);
-  background-position: left top;
-  background-repeat: repeat;
-  padding: 20px; 
-  width: 200px;
-  height: 150px;  
-}
+    #rcorners01 {
+        border-radius: 25px;
+       
+        padding: 30px;
+        width: 100px;
+        height: 10px;
+    }
 
 
-table {
-  border-collapse: collapse;
-  width: 100%;
-}
+    .login-form {
+        width: 300px;
+        margin: 0 auto;
+        font-family: Tahoma, Geneva, sans-serif;
+    }
 
-th, td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
+    .login-form h1 {
+        text-align: center;
+        color: #4d4d4d;
+        font-size: 24px;
+        padding: 20px 0 20px 0;
+    }
 
+
+    .buttons {
+        width: 100%;
+        border-radius: 25px;
+        padding: 15px;
+        background-color: #368140;
+        border: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-weight: bold;
+        color: #ffffff;
+        font-size: x-large;
+    }
+
+    .intro {
+        background-color: yellow;
+    }
+
+
+    #rcorners1 {
+        border-radius: 25px;
+        border: 2px solid rgb(173, 33, 45);
+        padding: 20px;
+        width: 400px;
+        height: 150px;
+    }
+
+    #rcorners3 {
+        border-radius: 25px;
+        background: url(paper.gif);
+        background-position: left top;
+        background-repeat: repeat;
+        padding: 20px;
+        width: 200px;
+        height: 150px;
+    }
+
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    th,
+    td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .sprPageBackGrond {
+        background-color: #202020;
+        font-style: initial;
+        color: #eeeeee;
+    }
+
+    .maintable {
+        width: 400px;
+
+    }
+
+    .sprinput {
+        width: 245px;
+        padding: 10px; 
+        border-radius: 10px;  
+        margin-bottom: 5px;
+        box-sizing: border-box;
+    }
+
+    .sprRow1 {
+        width: 245px;
+        height: 34px;
+     
+        text-align: start;
+
+    }
+
+    .sprColumn {
+        width: 150px;
+        height: 34px;
+        direction: rtl;
+        font-family: 'B Traffic';
+        font-size: X-large;
+        text-align: center;
+    }
 </style>
 <center>
-<body>
-<form action="/register" method="post">
-<!--
-for connect to other page use <form action="/register" method="post"> then you are connect to register page 
-and to registerpage use the bodyparser let username = request.body.username;
-    -->
 
-    
-    <script>alert("لطفا اطلاعات خود را وارد کنید");</script>
-    <table id = "rcorners1">
-
-    <tr>
-        <th>  username: <input type="text" name="username" placeholder="insert unic ID">  </th>
-    </tr>
-    <tr>
-        <th> personalCode: <input type="text" name="personalCode" placeholder="personalCode">  </th>
-    </tr>
-    <tr>
-        <th> firstName: <input type="text" name="firstName" placeholder="firstName">  </th>
-    </tr>
-    <tr>
-        <th>  familyName: <input type="text" name="familyName"placeholder="familyName"> </th>
-    </tr>
-    <tr>
-        <th>   phoneNumber : <input type="number" name="phoneNumber" placeholder="phoneNumber"> </th>
-    </tr>
-    <tr>
-        <th>    Email: <input type="email" name="Email" placeholder="Email"> </th>
-    </tr>
-    <tr>
-        <th> brithDay: <input type="date" name="brithDay" placeholder="brithDay">  </th>
-    </tr>
-    <tr>
-        <th>   Password: <input type="password" name="Passwords" placeholder="Password"> </th>
-   
-    </tr>
-    <tr>
-        <th>  <input type="submit" value="Submit"></th>
-   
-    </tr>
+    <body class="sprPageBackGrond">
+        <form action="/register" method="post">
+            <!--
+            for connect to other page use <form action="/register" method="post"> then you are connect to register page
+            and to registerpage use the bodyparser let username = request.body.username;
+                -->
+            <!-- <script>alert("لطفا اطلاعات خود را وارد کنید");</script>-->
 
 
-    
-</form>
 
-</body>
+
+
+            <table align="center" cellpadding="2" class="maintable">
+                <tr>
+                    <td class="sprRow1"> <input class="sprinput" type="text" name="username"
+                            placeholder="insert unic ID" required></td>
+                    <td class="sprColumn">نام کاربری:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="text" class="sprinput" name="personalCode"
+                            placeholder="personalCode" required></td>
+                    <td class="sprColumn">کد پرسنلی:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="text" class="sprinput" name="firstName" placeholder="firstName"
+                            required></td>
+                    <td class="sprColumn">نام:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="text" class="sprinput" name="familyName" placeholder="familyName"
+                            required></td>
+                    <td class="sprColumn">نام خانوادگی:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="number" class="sprinput" name="phoneNumber"
+                            placeholder="phoneNumber" required></td>
+                    <td class="sprColumn">شماره تماس:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="email" class="sprinput" name="Email" placeholder="Email" required>
+                    </td>
+                    <td class="sprColumn">ایمیل:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="date" class="sprinput" name="brithDay" placeholder="brithDay">
+                    </td>
+                    <td class="sprColumn">تاریخ تولد:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1"> <input type="password" class="sprinput" name="Passwords" placeholder="Password"
+                            required></td>
+                    <td class="sprColumn">گذر واژه:</td>
+                </tr>
+                <tr>
+                    <td class="sprRow1">&nbsp;</td>
+                    <td class="sprColumn">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="2"> <input type="submit" class="buttons" value="Submit"></td>
+                </tr>
+            </table>
+        </form>
+    </body>
+
 </html>
