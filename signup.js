@@ -19,7 +19,14 @@ console.log("start")
 
 exports.register= function ( username , personalCode , firstName , familyName, phoneNumber,Email,brithDay,Password )
 {
-connection.connect(function(err) {
+const user=require('./User')
+	let CurrentUser=new user(username);
+	CurrentUser.SetInfo(username,personalCode, firstName,familyName,phoneNumber,Email,brithDay,"STD",Password)
+	
+	setTimeout(() => {
+		CurrentUser.Add();
+	}, 1000);
+/* connection.connect(function(err) {
 	if (err) throw err;
 	console.log("Connected!");
 	var sql = "INSERT INTO users (userName, perssonalCode, Name, familyName, phoneNumber, Email, brithDay, Password) VALUES ";
@@ -30,5 +37,5 @@ connection.query(sql, function (err, result) {
   if (err) throw err;
   console.log("Number of records inserted: " + result.affectedRows);
 });
-})
+}) */
 }

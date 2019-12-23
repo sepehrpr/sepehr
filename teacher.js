@@ -1,12 +1,91 @@
-const bcrypt=require('bcryptjs')
-let pass='123';
-/*let salt = bcrypt.genSaltSync(15)
-console.log(salt)
+const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
-let hash=bcrypt.hashSync(pass,salt)
-console.log(hash)
-*/
-hash='$2a$10$W/AOrTA/0V92VbkGOpTqHeK5gUNsHUgLBn6O.ijMGxC/1QOvfN7y.'
 
-let a=bcrypt.compareSync(pass,hash)
-console.log(a)
+
+let port = process.argv[2] || 8000;
+const httpServer = http.createServer(requestHandler);
+httpServer.listen(port, () => {console.log('server is listening on port '+ port)});
+ 
+function requestHandler(req, res){
+  if(req.url === '/'){
+    sendteacherHtml(res);
+  }else if( req.url === '/list'){
+    sendListOfUploadedFiles(res);
+  }else if( /\/download\/[^\/]+$/.test(req.url)){
+    sendUploadedFile(req.url, res);
+  }else if( /\/upload\/[^\/]+$/.test(req.url) ){
+    saveUploadedFile(req, res)
+  }else{
+    sendInvalidRequest(res);
+  }
+}
+
+function sendteacherHtml(res){
+  let indexFile = path.join(__dirname, 'teacher.html');
+  fs.readFile(indexFile, (err, content) => {
+    if(err){
+      res.writeHead(404, {'Content-Type': 'text'});
+      res.write('File Not Found!');
+      res.end();
+    }else{
+      res.writeHead(200, {'Content-Type': 'text/html'});
+      res.write(content);
+      res.end();
+    }
+  })
+}
+
+function sendListOfUploadedFiles(res){
+  let uploadDir = path.join(__dirname, 'download');
+  fs.readdir(uploadDir, (err, files) => {
+    if(err){
+      console.log(err);
+      res.writeHead(400, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify(err.message));
+      res.end();
+    }else{
+      res.writeHead(200, {'Content-Type': 'application/json'});
+      res.write(JSON.stringify(files));
+      res.end();
+    }
+  })
+}
+
+
+function sendUploadedFile(url, res){
+  let file = path.join(__dirname, url);
+  fs.readFile(file, (err, content) => {
+    if(err){
+      res.writeHead(404, {'Content-Type': 'text'});
+      res.write('File Not Found!');
+      res.end();
+    }else{
+      res.writeHead(200, {'Content-Type': 'application/octet-stream'});
+      res.write(content);
+      res.end();
+    }
+  })
+}
+
+
+function saveUploadedFile(req, res){
+  console.log('saving uploaded file');
+  let fileName = path.basename(req.url);
+  let file = path.join(__dirname, 'download', fileName)
+  req.pipe(fs.createWriteStream(file));
+  req.on('end', () => {
+    res.writeHead(200, {'Content-Type': 'text'});
+    res.write('فایل شما با موفقیت بارگذاری شد');
+    res.end();
+  })
+}
+
+function sendInvalidRequest(res){
+  res.writeHead(400, {'Content-Type': 'application/json'});
+  res.write('Invalid Request');
+  res.end(); 
+}
+
+
