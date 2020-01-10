@@ -1,0 +1,3 @@
+Sample codes:
+https://www.codota.com/code/javascript/functions/puppeteer/Page/click
+https://www.codota.com/code/javascript/classes/puppeteer/Page

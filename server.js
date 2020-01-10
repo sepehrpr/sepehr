@@ -3,8 +3,9 @@ const app = express();
 const bcrypt = require('bcryptjs')
 const fileupload = require('express-fileupload')
 const hbs = require('hbs');
+const http = require('http');
 const bodyParser = require('body-parser')
-
+//const upload=require('./upload')
 var fs = require('fs');
 
 var session = require('express-session');
@@ -12,180 +13,326 @@ var path = require('path');
 
 let mysql = require('mysql');
 
+const Database = require("./Database")
+var DB = new Database();
+//DB.InitDatabase();
+//DB.CreateTables();
+
+const User = require('./Users')
+var CurrentUser = new User("Temp");
+
+const Post = require('./Post');
+const Comment = require("./Comment");
 
 app.set('view engine', 'hbs');
 hbs.registerPartials('views/partials')
+
+//for read from other HBS files(signup.hbs)
+app.use(express.static('public'));
+app.use(bodyParser.json());
+app.use(fileupload());
+app.use(session({
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+}));
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+app.get('/', function (req, res) {
+    res.render('login');
+});
 
 app.get('/about', function (req, res) {
     res.render('about');
 });
 
-app.get('/', function (req, res) {
-    //const Database=require('./Database')
-    // let DB=new Database();
-    //DB.InitDatabase();
-    res.render('login');
-});
-
-
 app.get('/signup', function (req, res) {
     res.render('signup');
 });
 
-/* app.get('/teacher', function (req, res) {
-    res.render('teacher');
-}); */
 
-//for read from other HBS files(signup.hbs)
+app.post('/setPost', async (request, response) => {
 
-app.use(express.static('public'));
+    var txtpost = request.body.txtPost;
 
-app.use(bodyParser.json());
+    var CurrentPost = new Post();
+    CurrentPost.PostText = await txtpost;
+    CurrentPost.UserName = await CurrentUser.UserName;
+    await CurrentPost.Add();
+    console.log("Post Text:" + CurrentPost.PostText)
+    console.log("Post ID:" + CurrentPost.PostID)
 
-
-app.use(session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-}));
-
-var connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'nodedb'
+    response.redirect("./viewpost?id=" + CurrentPost.PostID)
 });
 
+app.post('/setComment', async (request, response) => {
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+    var commentText = request.body.txtComment;
+    var postID = request.body.txtPostID;
 
-
-app.use(session({
-    secret: 'secret',
-    resave: true,
-    saveUninitialized: true
-}));
-
-app.get('/teacher', (re, res) => {
-    res.redirect('login')
+    var tmpComment = await new Comment();
+    tmpComment.UserName = await CurrentUser.UserName;
+    tmpComment.PostID = await postID;
+    tmpComment.CommentText = await commentText;
+    await tmpComment.AddToBank();
+    response.redirect("/viewpost?id=" + postID)
 });
 
-app.post('/authenticate', function (request, response) {
-    var username = request.body.username;
-    var password = request.body.password;
+app.get('/getAllPosts', async (req, res) => {
+    const Post = require("./Post")
+    let PostsList = await Post.getAllPosts();
+    let Message = "";
+    console.log("Count= " + PostsList.length);
+    try {
+        Message = "لیست پست های گذاشته شد<BR>";
+        await PostsList.forEach(element => {
+            console.log("item! ");
+            Message += "<a class='buttons' href='/viewpost?id=" + element.PostID + "'>";
+            Message += "پست " + element.PostID + ": توسط استاد : " + element.UserName + "  " + element.PostText + " </a> <br><br>";
+        });
+    }
+    catch{
+        Message = PostsList;
+    }
+    console.log("Messsage = " + Message);
+    await res.render('viewPostsList', {
+        TheList: Message
+    });
+    console.log("render done!");
+
+});
+
+app.get('/viewpost', async (request, response) => {
+    var id = request.query.id;
+    console.log("Start id = " + id);
+    var thePost = await Post.getPost(id);
+    console.log("Post got = " + "پست شماره " + thePost.PostID + " :\n" + thePost.PostText);
+    const PostValue = "پست شماره " + thePost.PostID;
+    //await PostValue.replace(' ', '%20')
+
+    let CommentsList = await Comment.getAllComments(thePost.PostID)
+    let PostComments = "";
+    console.log("Count= " + CommentsList.length);
+    try {
+        PostComments = "<BR>کامنت ها:<BR>";
+        await CommentsList.forEach(element => {
+            console.log("item! ");
+            PostComments += "<input type='text' value='" + element.UserName + ":" + element.CommentText + "' class='commentsStyle'></input><br>";
+            //Message += "<input type='text' class='buttons' value='" + element.UserName + ":" + element.CommentText + "'>";
+        });
+    }
+    catch{
+        PostComments = CommentsList;
+    }
+    console.log("Messsage = " + PostComments);
+
+    let UserOptions = "";
+    if (CurrentUser.UserType == "TCH") {
+        UserOptions += "<form action='/upload' method='POST' enctype='multipart/form-data'";
+        UserOptions += " style='width: 90%; align-items: center;font-family: 'b traffic'; direction: rtl;'>";
+        UserOptions += "<p> فایلی که میخواهید بارگذاری شود را انتخاب کنید</p><br>";
+        UserOptions += "<input type='file' name='txtFile' class='messages' style='background-color: darkslategray;' placeholder=' فایل بارگذاری ' required>";
+        UserOptions += "<input type='submit' value='بارگذاری' class='buttons' style='width: 40%;'>";
+        UserOptions += "</form>";
+    }
+
+    const params = {
+        PageTitle: PostValue,
+        PostID: thePost.PostID,
+        PostText: thePost.PostText,
+        TeacherName: thePost.UserName,
+        Comments: PostComments,
+        Options: UserOptions
+    }
+
+    console.log("Params:" + params);
+    await response.render('viewPost', params);
+    console.log("render done!")
+});
+
+app.get('/spr', async (request, res) => {
+    var id = request.query.id;
+    console.log("Start id = " + id);
+    const Post = require("./Post")
+    var thePost = await Post.getPost(14);
+    console.log("Post got = " + "پست شماره " + thePost.PostID + " :\n" + thePost.PostText);
+    const PostValue = "پست شماره " + thePost.PostID + " :<BR>" + thePost.PostText;
+    //await PostValue.replace(' ', '%20')
+    const params = {
+        PageTitle: "پست شماره " + thePost.PostID,
+        PostID: thePost.PostID,
+        PostText: thePost.PostText,
+        TeacherName: thePost.UserName,
+        message: PostValue
+    }
+    console.log("Params:" + params);
+    await res.render('viewPost', params);
+    console.log("render done!")
+})
+
+app.get('/uploader', async (request, res) => {
+    res.render("uploader")
+})
+
+app.post('/upload', async (request, result) => {
+    if (!request.files) {
+        result.send("No File");
+    }
+    var postID = "0";
+    postID = request.body.txtPostID;
+    console.log(postID)
+    let txtFile = request.files['txtFile'];
+    console.log(txtFile);
+    txtFile.mv('./uploaded/P_'+ postID +'_' + txtFile.name , (err) => {
+        if (err) {
+            console.log("Error Uploading:" + err)
+            result.send("Error Uploading:" + err)
+        }
+        else {
+            console.log("Uploaded OK")
+            result.send("Uploaded OK")
+        }
+    })
+})
+
+app.post('/authenticate', async (request, response) => {
+    var username = await request.body.username;
+    var password = await request.body.password;
+    console.log("Username: " + username + " Password:" + password);
     if (username && password) {
-        const User = require('./User')
-        CurrentUser = new User(username);
-        setTimeout(() => {
-            CurrentUser.SayHello();
+        console.log("Checking...");
+        CurrentUser.UserName = await username;
+        console.log("User Name: " + CurrentUser.UserName);
+        await CurrentUser.GetInfo();
+        console.log("Last Name: " + CurrentUser.LastName);
+        CurrentUser.SayHello();
 
-            if (password == CurrentUser.Password) {
-                let Message = "";
-                if (CurrentUser.UserType == "TCH") {
-                    res.redirect('teacher')
-                    res.send("its TCH")
-                }
-                if (CurrentUser.UserType == "STD") {
-                    //Message = "دانشجوی "; response.send(Message + " گرامی " + CurrentUser.FirstName + " " + CurrentUser.LastName + " " + CurrentUser.Email + " خوش آمدید")
-                    res.redirect('student')
-                    res.send("its STD")
-                }
-                setTimeout(() => {
-                    var Post = require("./Post")
-                    Post = new Post();
-                    Post.UserName = CurrentUser.UserName;
-                    Post.PostText = "ورود به سایت"
-                    setTimeout(() => {
-                        Post.Add();
-                    }, 500)
+        if (bcrypt.compareSync(password, CurrentUser.Password)) {
+            let Message = "";
+            let Title = "";
+            switch (CurrentUser.UserType) {
+                case "TCH":
+                    Title = "صفحه استاد"
+                    Message = "استاد گرامی " + CurrentUser.FirstName + " " + CurrentUser.LastName + " خوش آمدید";
+                    Message += "<BR><a class='buttons' href=\"/getAllPosts\">برای دیدن همه پستها کلیک کنید </a>"
+                    Message += "<BR><input type='text' name='txtPost' class='messages' style='height:150px; background-color: antiquewhite color: #000000;' placeholder='متن پست خود را اینجا را بنویسید' required >";
+                    Message += "<BR><input type='submit' value='post' class='buttons' style='width: 40%;'></input>"
+                   // Message += "<BR><a class='buttons' href='/uploader'>آپلود فایل</a>"
+                    break;
 
-                }, 1000)
+                case "STD":
+                    Title = "صفحه دانشجو"
+                    Message = "دانشجوی  گرامی " + CurrentUser.FirstName + " " + CurrentUser.LastName + " خوش آمدید";
+                    Message += "<BR><a class='buttons' href=\"/getAllPosts\">برای گذاشتن نظر خود کلیک کنید<br> </a>"
+                    break;
+
+                case "ADM":
+                    Title = "صفحه مدیر سایت"
+                    Message = "مدیر  گرامی " + CurrentUser.FirstName + " " + CurrentUser.LastName + " خوش آمدید";
+                    Message += "<BR><a class='buttons' href=\"/posts\">برای مدیریت اطلاعات کلیک کنید<br> </a>"
+                    break;
+
+                default:
+                    Message = "کاربر نامشخص " + CurrentUser.FirstName + " " + CurrentUser.LastName + " خوش آمدید";
+                    Message += "<BR><a class='buttons' href=\"/\">برای بازگشت کلیک کنید<br> </a>"
+                    break;
             }
-            else {
-
-                Message = " گرامی لطفا در وارد کردن نام کاربری و گذرواژه دقت فرمایید."
-                response.send()
+            const params = {
+                PageTitle: Title,
+                Options: Message
             }
-        }, 1000)
+            console.log("Params:" + params);
+            response.render('switchboard', params);
+            /*
+                این قسمت را نوشتم تا هر بار کسی وارد سایت میشود یک پست گذاشته شود (مانند لاگ برای ورود) اما دیگر کاربرد ندارد
+                اگر تونستم باید یک جدول لاگ هم درست کنم و این دستورات در اون جدول بنویسه
+                                var Post = require("./Post")
+                                var tmpPost = new Post();
+                
+                                var Comment = require("./Comment")
+                                var tmpComment = new Comment();
+                
+                                setTimeout(() => {
+                                    tmpPost.UserName = CurrentUser.UserName;
+                                    tmpPost.PostText = "ورود به سایت"
+                                    setTimeout(() => {
+                                        tmpPost.Add();
+                                        setTimeout(() => {
+                                            tmpComment.UserName = CurrentUser.UserName;
+                                            tmpComment.PostID = tmpPost.PostID
+                                            tmpComment.CommentText = "ورود به سایت انجام شد"
+                                            setTimeout(() => {
+                                                tmpComment.Add();
+                                            }, 500)
+                
+                                        }, 1000)
+                                    }, 500)
+                                }, 1000)
+                                */
+        }
+
+        else {
+            console.log("Bad User name or password")
+            Message = "کاربر گرامی لطفا در وارد کردن نام کاربری و گذرواژه دقت فرمایید."
+            response.send(Message)
+        }
     }
     else {
-        response.send("کاربر گرامی برای ورود، وارد کردن نام کاربری و گذرواژه الزامی است.")
+        console.log("empty username or password")
+        response.send("نام کاربری یا پسورد خالی است")
     }
-
 });
 
-/* app.post('/authenticate', function (request, response) {
-    var username = request.body.username;
-    var password = request.body.password;
-
-    //bcrypt.compareSync(password,hashedPassword)
-
-    //console.log("Salam " + username+" "+ password)
-
-
-
-    if (username && password) {
-        connection.query('SELECT * FROM users WHERE userName = ? ', [username], function (error, results, fields) {
-            if (results.length > 0) {
-                console.log(results)
-                let hashpass = results[0].Password;
-                console.log(password + '   ' + hashpass)
-                //bcrypt.genSaltSync(10,(err,salt)=>{bcrypt.hash(password,salt,(err,hash)=>{})});
-                //hash='$2a$10$W/AOrTA/0V92VbkGOpTqHeK5gUNsHUgLBn6O.ijMGxC/1QOvfN7y.'
-
-                let a = bcrypt.compareSync(password, hashpass)
-                //console.log("The Res : " + a)
-                if (a == false)
-                    response.send("کاربر گرامی نام کاربری یا گذر واژه صحیح نیست");
-                   // res.redirect('/');
-                else {
-                     //response.send(username + " " + ' خوش آمدید ')
-
-                  //  res.redirect('/teacher');
-                  response.redirect('/')
-                }
-            } else {
-              //  response.send("نام کاربری یا گذر واژه صحیح نیست");
-              response.redirect('/home')
-            }
-            response.end();
-        });
-    } else {
-        response.send('Please enter Username and Password!');
-        response.end();
-    }
-}); */
-//let username=req.bodyParser.username;
-//let password=req.bodyParser.password;
-//conection.query('select * from user where username = sepehr',[username,password],(err,result,field)=>{console.log(result);});
-app.post('/register', (request, response) => {
+app.post('/register', async (request, response) => {
 
     // use bodyparser for read user values for reg by name as signup.hbs
 
-    let username = request.body.username;
-    let personalCode = request.body.personalCode;
-    let firstName = request.body.firstName;
-    let familyName = request.body.familyName;
-    let phoneNumber = request.body.phoneNumber;
-    let Email = request.body.Email;
-    let brithDay = request.body.brithDay;
-    let Passwords = request.body.Passwords;
+    CurrentUser.UserName = await request.body.username;
+    CurrentUser.PersonalCode = request.body.personalCode;
+    CurrentUser.FirstName = request.body.firstName;
+    CurrentUser.LastName = request.body.familyName;
+    CurrentUser.PhoneNumber = request.body.phoneNumber;
+    CurrentUser.Email = request.body.Email;
+    CurrentUser.BrithDate = await request.body.brithDay;
+    CurrentUser.Password = await request.body.Passwords;
+    CurrentUser.UserType = "STD";
 
     let salt = bcrypt.genSaltSync(10)
+    CurrentUser.Password = await bcrypt.hashSync(CurrentUser.Password, salt)
+    let Message = "";
+    let Title = "";
+    console.log("Start ADD");
+    let result = await CurrentUser.Add();
+    console.log("End ADD");
+    console.log("Res:");
+    console.log(result);
+    if (CurrentUser.Authenticated) {
+        Title = "ثبت نام موفق"
+        Message = "کاربر گرامی " + CurrentUser.FirstName + " " + CurrentUser.LastName + " ثبت نام شما انجام شد";
+        Message += "<BR><a class='buttons' href='/'>برای ورود کلیک کنید </a>"
+        const params = {
+            PageTitle: Title,
+            Options: Message
+        }
+        console.log("Params:" + params);
+        response.render('messenger', params);
+    }
+    else {
+        Title = "ثبت نام ناموفق"
+        Message = "\n " + "ثبت نام انجام نشد نام کاربری دیگری انتخاب کنید ";
+        //Message += "<button onclick='goBack()'>برای ویرایش کلیک کنید</button>";
+        //Message += "<script> function goBack() { window.history.back();}</script>";
+        const params = {
+            PageTitle: Title,
+            Options: Message
+        }
+        console.log("Params:" + params);
+        response.render('messenger', params);
+    }
 
-    let hashedPassword = bcrypt.hashSync(Passwords, salt)
-
-    response.send("\n" + "Your Name: " + username + "  /  " + "   your Email address:  " + Email + "\n " + "ثبت نام شما با موفقیت انجام شد ");
-
-    //mymoudule import reg fucntion from  signup.js
-    const myModule = require('./signup');
-
-    myModule.register(username, personalCode, firstName, familyName, phoneNumber, Email, brithDay, hashedPassword);
 });
 
-//response.render('teacher')
-
-
-
-app.listen(800);
+app.listen(process.env.PORT || 800);
+console.log("Server is running at port: " + (process.env.PORT || 800));

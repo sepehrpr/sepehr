@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="Content-Language" content="fa" />
+  <title>File Uploader</title>
+  <style>
+    .sprPageBackGrond {
+      background-color: #202020;
+      font-style: initial;
+      color: #eeeeee;
+    }
+
+    #rcorners1 {
+      border-radius: 25px;
+      background: #73AD21;
+      padding: 30px;
+      width: 100px;
+      height: 10px;
+    }
+
+
+    .login-form {
+      width: 300px;
+      margin: 0 auto;
+      font-family: Tahoma, Geneva, sans-serif;
+    }
+
+    .login-form h1 {
+      text-align: center;
+      font-size: 24px;
+      padding: 20px 0 20px 0;
+    }
+
+    .login-form input[type="password"],
+    .login-form input[type="text"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #06b632;
+      margin-bottom: 15px;
+      box-sizing: border-box;
+      border-radius: 15px;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-content: center;
+      align-items: center;
+    }
+
+    #toast {
+      visibility: hidden;
+      background-color: black;
+      min-width: 250px;
+      margin-left: -125px;
+      color: #fff;
+      text-align: center;
+      border-radius: 2px;
+      padding: 16px;
+      position: fixed;
+      z-index: 1;
+      left: 50%;
+      bottom: 30px;
+    }
+
+    .toast-visible-error {
+      visibility: visible !important;
+      animation: fadein 0.5s, fadeout 0.5s 10s;
+      background-color: red !important;
+    }
+
+    .toast-visible-success {
+      visibility: visible !important;
+      animation: fadein 0.5s, fadeout 0.5s 10s;
+      background-color: green !important;
+    }
+
+    @keyframes fadein {
+      from {
+        bottom: 0;
+        opacity: 0;
+      }
+
+      to {
+        bottom: 30px;
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeout {
+      from {
+        bottom: 30px;
+        opacity: 1;
+      }
+
+      to {
+        bottom: 0;
+        opacity: 0;
+      }
+    }
+
+    .btn {
+      display: inline-block;
+      min-width: 88px;
+      height: 36px;
+      line-height: 36px;
+      border: 0;
+
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #368140;
+      text-align: center;
+      text-decoration: none;
+      text-transform: uppercase;
+      padding: 0 10px;
+      color: #ffffff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.25s ease-in-out;
+    }
+
+
+    .buttons {
+      width: 100%;
+      padding: 15px;
+      border-radius: 10px;
+      background-color: #368140;
+      border: 0;
+      box-sizing: border-box;
+      cursor: pointer;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+
+    .btn-raised {
+      box-shadow: var(--bs1);
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+
+</head>
+
+
+<body class="sprPageBackGrond" style="font-family:b traffic; font-weight: bold;">
+  <br>
+  <form action="/upload" method="POST" enctype="multipart/form-data"
+    style="width: 90%; align-items: center;font-family: 'b traffic'; direction: rtl;">
+    <p> فایلی که میخواهید بارگذاری شود را انتخاب کنید</p><br>
+    <input type="file" name="txtFile" class="messages" style="background-color: darkslategray;"
+      placeholder=" فایل بارگذاری " required>
+    <input type="submit" value="بارگذاری" class="buttons" style="width: 40%;">
+  </form>
+</body>
+
+</html>

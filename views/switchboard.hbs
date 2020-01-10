@@ -1,0 +1,72 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{PageTitle}}</title>
+</head>
+<style>
+    .buttons {
+        width: 90%;
+        padding: 5px;
+        margin-top: 10px;
+        border-radius: 10px;
+        background-color: #368140;
+        border: 0;
+        box-sizing: border-box;
+        cursor: pointer;
+        font-weight: bold;
+        color: #ffffff;     
+        text-align: center;
+        height: 35px;
+    }
+
+    .messages {
+        width: 90%;
+        padding: 5px;
+        margin-top: 10px;
+        
+        border-radius: 10px;
+        background-color: darkgreen;
+        border: 0;
+        box-sizing: border-box;
+        cursor: default;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: right;
+    }  
+    .commentsStyle {
+        width: 90%;
+        padding: 5px;
+        margin-top: 10px;
+        border-radius: 10px;
+        background-color: darkblue;
+        border: 0;
+        box-sizing: border-box;
+        cursor: default;
+        font-weight: bold;
+        color: #ffffff;
+        text-align: right;
+    }
+
+    .sprPageBackGrond {
+        background-color: #202020;
+        font-style: initial;
+        font-family: 'b traffic';
+        color: #eeeeee;
+        text-align: center;
+        padding: 15px;
+        direction: rtl;
+        align-items: center;
+    }
+</style>
+<body class="sprPageBackGrond">
+   {{!--  <div style="background-image: url('/files/comment.jpg');"></div> --}}     
+    <form action="setPost" style="text-align-last: center;" method="POST">
+         {{{Options}}}        
+    </form>   
+
+</body>
+
+</html>
